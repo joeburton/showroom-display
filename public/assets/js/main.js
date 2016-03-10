@@ -135,7 +135,7 @@ $(function() {
 
 				if (count === self.CONST.NUMBER_DISPLAY_IMAGES) {
 					console.log('start transitioning in other images');
-					//self.startImageTransitions();
+					self.getImages(); 
 				}
 
 			}, 150);
@@ -144,19 +144,21 @@ $(function() {
 
 		startImageTransitions: function () {
 			
-			var numberOfImages = Object.keys(this.images).length;
-			var imageCollectionPosition = this.CONST.NUMBER_DISPLAY_IMAGES-1;
-			var self = this;
+			var numberOfImages = Object.keys(this.images).length,
+				imageCollectionPosition = this.CONST.NUMBER_DISPLAY_IMAGES-1,
+				parseImages,
+				self = this,
+				domPos;
 
 			$('body').addClass('loaded');
 
-			var parseImages = setInterval(function () {
+			parseImages = setInterval(function () {
 				
 				if (numberOfImages > self.CONST.NUMBER_DISPLAY_IMAGES && imageCollectionPosition < numberOfImages) {
 					
 					imageCollectionPosition++;
 
-					var domPos = Math.floor(Math.random() * self.CONST.NUMBER_DISPLAY_IMAGES) + 0;
+					domPos = Math.floor(Math.random() * self.CONST.NUMBER_DISPLAY_IMAGES) + 0;
 
 					$(self.panels[domPos]).removeClass('bg-loaded');
 					
@@ -165,15 +167,22 @@ $(function() {
 					}, 2000);
 		
 				} else if (imageCollectionPosition === numberOfImages) {
-				
+					// once all images have been displayed get a fresh set of image data
 					clearInterval(parseImages);
 					self.transitionImagesOut();
-					// once all images have been displayed need to get a fresh set of data
-				
 				}
 
 			}, 5000);
-
+			
+			// if the number of images retrieved is less than the base display 
+			// amount of 18 poll for new images after 30 seconds
+			setTimeout(function () {
+				if (numberOfImages <= self.CONST.NUMBER_DISPLAY_IMAGES) {
+					clearInterval(parseImages);
+					self.transitionImagesOut();
+				}
+			}, 5000);
+			
 		},
 
 		getFreshImagesSet: function () {
